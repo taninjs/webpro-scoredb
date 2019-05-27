@@ -1,0 +1,31 @@
+version: '3.3'
+
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - ./docker-volumes/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: django
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+  
+  app:
+    build: .
+    command: python manage.py runserver 0:8888
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    ports:
+      - 8888:8888
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: django
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
