@@ -24,6 +24,7 @@ class BackendScoreSerializer(serializers.ModelSerializer):
         if not is_created:
             score.score = validated_data['score']
             score.comment = validated_data['comment']
+            score.save()
 
         return score
 
@@ -50,5 +51,6 @@ class FrontendScoreSerializer(serializers.ModelSerializer):
         if not is_created:
             score.score = validated_data['score']
             score.comment = validated_data['comment']
+            score.save()
 
         return score
