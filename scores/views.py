@@ -25,22 +25,23 @@ class ScoreExportCSV(View):
 
         writer = csv.writer(response)
         questions = BackendScore.objects.all().values_list('question', flat=True).order_by('question').distinct()
-        students = Student.objects.prefetch_related('backendscore_set').all()
+        students = Student.objects.prefetch_related('backendscore_set', 'frontendscore_set').all()
 
         writer.writerow(['student_id'] + [x for x in questions] + ['total'])
 
         for student in students:
-            scores = []
-            score_queryset = student.backendscore_set.order_by('question').values('question', 'score')
+            bscores = []
+            bscore_queryset = student.backendscore_set.order_by('question').values('question', 'score')
 
             for question in questions:
-                scores.append(next((x['score'] for x in score_queryset if x['question'] == question), '-'))
+                bscores.append(next((x['score'] for x in bscore_queryset if x['question'] == question), '-'))
 
-            try:
-                total = sum(scores)
-            except TypeError:
-                total = '-'
+            fscores = []
+            fscore_queryset = student.frontendscore_set.order_by('question').values('question', 'score')
 
-            writer.writerow([student.student_id] + scores + [total])
+            for question in questions:
+                fscores.append(next((x['score'] for x in fscore_queryset if x['question'] == question), '-'))
 
+            writer.writerow([student.student_id + ' (b)'] + bscores)
+            writer.writerow([student.student_id + ' (f)'] + fscores)
         return response
